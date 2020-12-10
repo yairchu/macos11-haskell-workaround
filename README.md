@@ -15,3 +15,7 @@ Build:
 Use:
 
     DYLD_INSERT_LIBRARIES=<PATH>/macos11ghcwa.dylib stack args
+
+To test one can use (with and without the fix):
+
+    stack exec -- runghc --ghc-arg="-framework OpenGL" Test.hs
