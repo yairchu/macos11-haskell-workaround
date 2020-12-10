@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
@@ -19,6 +20,9 @@ int my_stat (const char* restrict path, struct stat* restrict buf)
     if (STARTS_WITH ("/System/Library/Frameworks/", path))
     {
         // Make believe that system framework files exists to work-around GHC bug
+#if VERBOSE
+        printf ("macos11ghcwa pretending that file exists: %s\n", path);
+#endif
         return 0;
     }
     return stat (path, buf);
@@ -106,6 +110,9 @@ static int exec_ghc (const char* folder, char* const argv[], char* const envp[])
     const char* ghc_ver = get_ghc_ver (folder);
     const char* executable = append (folder, append ("lib/", append (ghc_ver, "/bin/ghc")));
     const char* topdir = append (folder, append ("lib/", ghc_ver));
+#if VERBOSE
+    printf ("macos11ghcwa calling ghc at %s\n", executable);
+#endif
     return execve (executable, fix_ghc_argv (topdir, argv), fix_env (folder, "ghc-stage2", topdir, envp));
 }
 
@@ -124,6 +131,9 @@ static int exec_runghc (const char* folder, char* const argv[], char* const envp
 {
     const char* ghc_ver = get_ghc_ver (folder);
     const char* executable = append (folder, append ("lib/", append (ghc_ver, "/bin/runghc")));
+#if VERBOSE
+    printf ("macos11ghcwa calling runghc at %s\n", executable);
+#endif
     return execve (
         executable, fix_runghc_argv (folder, argv),
         fix_env (folder, "runghc", append (folder, append ("lib/", ghc_ver)), envp));
