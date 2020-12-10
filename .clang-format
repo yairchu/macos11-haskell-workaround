@@ -1,0 +1,19 @@
+---
+Language: Cpp
+BasedOnStyle: LLVM
+AccessModifierOffset: -4
+AlignAfterOpenBracket: AlwaysBreak
+AlignConsecutiveMacros: true
+AlignEscapedNewlines: Left
+AllowShortFunctionsOnASingleLine: Inline
+AlwaysBreakTemplateDeclarations: Yes
+BreakBeforeBinaryOperators: NonAssignment
+BreakBeforeBraces: Allman
+ColumnLimit: 120
+IndentWidth: 4
+KeepEmptyLinesAtTheStartOfBlocks: false
+PointerAlignment: Left
+SpaceAfterCStyleCast: true
+SpaceAfterLogicalNot: true
+SpaceBeforeCpp11BracedList: true
+SpaceBeforeParens: NonEmptyParentheses

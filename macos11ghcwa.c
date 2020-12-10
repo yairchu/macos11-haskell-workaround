@@ -1,20 +1,22 @@
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
 #include <unistd.h>
 
 // From https://opensource.apple.com/source/dyld/dyld-97.1/include/mach-o/dyld-interposing.h.auto.html
-#define DYLD_INTERPOSE(_replacment,_replacee) \
-    __attribute__((used)) \
-    static struct{ const void* replacment; const void* replacee; } _interpose_##_replacee \
-        __attribute__ ((section ("__DATA,__interpose"))) = \
-        { (const void*)(unsigned long)&_replacment, (const void*)(unsigned long)&_replacee };
+#define DYLD_INTERPOSE(_replacment, _replacee)                                    \
+    __attribute__ ((used)) static struct                                          \
+    {                                                                             \
+        const void* replacment;                                                   \
+        const void* replacee;                                                     \
+    } _interpose_##_replacee __attribute__ ((section ("__DATA,__interpose"))) = { \
+        (const void*) (unsigned long) &_replacment, (const void*) (unsigned long) &_replacee};
+
+#define STARTS_WITH(prefix, str) (0 == strncmp (str, prefix, sizeof (prefix) - 1))
 
 int my_stat (const char* restrict path, struct stat* restrict buf)
 {
-    const char prefix[] = "/System/Library/Frameworks/";
-    if (0 == strncmp (path, prefix, sizeof (prefix) - 1))
+    if (STARTS_WITH ("/System/Library/Frameworks/", path))
     {
         // Make believe that system framework files exists to work-around GHC bug
         return 0;
@@ -25,7 +27,7 @@ int my_stat (const char* restrict path, struct stat* restrict buf)
 DYLD_INTERPOSE (my_stat, stat)
 
 // From https://stackoverflow.com/a/37188697/40916
-static int string_ends_with (const char *str, const char *suffix)
+static int string_ends_with (const char* str, const char* suffix)
 {
     const int str_len = strlen (str), suffix_len = strlen (suffix);
     return str_len >= suffix_len && 0 == strcmp (str + (str_len - suffix_len), suffix);
@@ -46,7 +48,7 @@ static char* remove_suffix (const char* s, const char* suffix)
     if (! string_ends_with (s, suffix))
         return NULL;
     char* prefix = strdup (s);
-    prefix[strlen(s) - strlen(suffix) + 1] = '\0';
+    prefix[strlen (s) - strlen (suffix) + 1] = '\0';
     return prefix;
 }
 
@@ -65,13 +67,12 @@ static char** fix_env (const char* folder, const char* topdir, char* const envp[
     memcpy (new_env, envp, env_size * sizeof (char*));
     const char* exedir = append (topdir, "/bin");
     new_env[env_size] = append ("exedir=", exedir);
-    new_env[env_size+1] = "exeprog=ghc-stage2";
-    new_env[env_size+2] = append ("datadir=", append (folder, "share"));
-    new_env[env_size+3] = append ("bindir=", append (folder, "bin"));
-    new_env[env_size+4] = append ("topdir=", topdir);
-    new_env[env_size+5] = append ("executablename=", append (exedir, "/ghc"));
-    new_env[env_size+6] = NULL;
-
+    new_env[env_size + 1] = "exeprog=ghc-stage2";
+    new_env[env_size + 2] = append ("datadir=", append (folder, "share"));
+    new_env[env_size + 3] = append ("bindir=", append (folder, "bin"));
+    new_env[env_size + 4] = append ("topdir=", topdir);
+    new_env[env_size + 5] = append ("executablename=", append (exedir, "/ghc"));
+    new_env[env_size + 6] = NULL;
     return new_env;
 }
 
@@ -89,11 +90,11 @@ static char* get_ghc_ver (const char* folder)
 {
     const int len = strlen (folder);
     int i = len - 2;
-    while (i > 1 && folder[i-1] != '/')
+    while (i > 1 && folder[i - 1] != '/')
         --i;
     char* result = strdup (folder + i);
     result[len - i - 1] = '\0';
-    return result;    
+    return result;
 }
 
 int my_execve (const char* file, char* const argv[], char* const envp[])
