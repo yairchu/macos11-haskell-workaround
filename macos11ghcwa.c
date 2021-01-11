@@ -89,8 +89,8 @@ static char** fix_ghc_argv (const char* topdir, char* const argv[])
     const int argc = num_elems (argv);
     char** new_argv = malloc ((argc + 2) * sizeof (char* const));
     new_argv[0] = argv[0];
-    memcpy (new_argv + 2, argv + 1, (argc + 1) * sizeof (char*));
     new_argv[1] = append ("-B", topdir);
+    memcpy (new_argv + 2, argv + 1, argc * sizeof (char*));
     return new_argv;
 }
 
@@ -121,9 +121,9 @@ static char** fix_runghc_argv (const char* folder, char* const argv[])
     const int argc = num_elems (argv);
     char** new_argv = malloc ((argc + 3) * sizeof (char* const));
     new_argv[0] = argv[0];
-    memcpy (new_argv + 3, argv + 1, (argc + 1) * sizeof (char*));
     new_argv[1] = "-f";
     new_argv[2] = append (folder, "bin/ghc");
+    memcpy (new_argv + 3, argv + 1, argc * sizeof (char*));
     return new_argv;
 }
 
